@@ -1,0 +1,33 @@
+---
+- name: create es images directory
+  file: path=/tmp/images state=directory
+
+- name: copy es images
+  copy: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - {src: 'es.tar', dest: '/tmp/images/es.tar'  }
+
+- name: docker import es images
+  shell: docker load -i {{ item }}
+  with_items:
+    - /tmp/images/es.tar
+
+- name: create kibana conf directory
+  file: path=/tmp/es state=directory
+
+- name: copy kibana conf
+  template: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - {src: 'es-master.yaml', dest: '/tmp/es/es-master.yaml'}
+    - {src: 'es-master-pdb.yaml', dest: '/tmp/es/es-master-pdb.yaml'}
+    - {src: 'es-data.yaml', dest: '/tmp/es/es-data.yaml'}
+    - {src: 'es-data-pdb.yaml', dest: '/tmp/es/es-data-pdb.yaml'}
+    - {src: 'es-svc.yaml', dest: '/tmp/es/es-svc.yaml'}
+    - {src: 'es-client.yaml', dest: '/tmp/es/es-client.yaml'}
+    - {src: 'es-discovery-svc.yaml', dest: '/tmp/es/es-discovery-svc.yaml'}
+
+- name: create elasticsearch pod and svc
+  shell: kubectl create -f /tmp/es
+  
+
+ 

@@ -1,0 +1,60 @@
+---
+- name: create logstash images directory
+  file: path=/tmp/images state=directory
+
+- name: copy logstash images
+  copy: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - {src: 'logstash.tar', dest: '/tmp/images/logstash.tar'  }
+
+- name: docker import logstash images
+  shell: docker load -i {{ item }}
+  with_items:
+    - /tmp/images/logstash.tar
+
+- name: create logstash and conf directory
+  file: path={{ item }} state=directory recurse=yes
+  with_items:
+    - '/logstash/dev'
+    - '/tmp/logstash'
+    - '/logstash/i-logstash'
+    - '/logstash/l-logstash'
+
+- name: copy logstash_install yaml
+  template: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - {src: 'yaml/dev-logstash.yaml', dest: '/tmp/logstash/dev-logstash.yaml'}
+    - {src: 'yaml/dev-logstash-svc.yaml', dest: '/tmp/logstash/dev-logstash-svc.yaml'}
+    - {src: 'yaml/i-logstash.yaml', dest: '/tmp/logstash/i-logstash.yaml'}
+    - {src: 'yaml/i-logstash-svc.yaml', dest: '/tmp/logstash/i-logstash-svc.yaml'}
+    - {src: 'yaml/l-logstash.yaml', dest: '/tmp/logstash/l-logstash.yaml'}
+    - {src: 'yaml/l-logstash-svc.yaml', dest: '/tmp/logstash/l-logstash-svc.yaml'}
+
+- name: copy logstash conf
+  template: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - {src: 'dev/logstash.conf', dest: '/logstash/dev/logstash.conf'}
+    - {src: 'i-openstask/logstash.conf', dest: '/logstash/i-openstack/logstash.conf'}
+    - {src: 'l-openstask/logstash.conf', dest: '/logstash/l-openstack/logstash.conf'}
+
+- name: create logstash i-logstash pod
+  shell: kubectl create -f /tmp/logstash/i-logstash.yaml
+
+  
+- name: create logstash i-logstash svc
+  shell: kubectl create -f /tmp/logstash/i-logstash-svc.yaml
+
+ 
+#- name: create logstash dev pod
+#  shell: kubectl create -f /tmp/logstash/dev.yaml
+#
+#  
+#- name: create logstash dev svc
+#  shell: kubectl create -f /tmp/logstash/dev-svc.yaml
+#
+#- name: create logstash l-logstash pod
+#  shell: kubectl create -f /tmp/logstash/l-logstash.yaml
+#
+#  
+#- name: create logstash l-logstash svc
+#  shell: kubectl create -f /tmp/logstash/l-logstash-svc.yaml

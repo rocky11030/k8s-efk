@@ -1,0 +1,5 @@
+---
+- hosts: es
+  user: root
+  roles:
+    - es-install

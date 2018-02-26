@@ -1,0 +1,11 @@
+[filebeat]
+
+
+[logstash]
+10.2.76.2 ansible_ssh_user=root ansible_ssh_pass=Neunn2016
+
+[es]
+10.2.76.2 ansible_ssh_user=root ansible_ssh_pass=Neunn2016
+
+[kibana]
+10.2.76.2 ansible_ssh_user=root ansible_ssh_pass=Neunn2016

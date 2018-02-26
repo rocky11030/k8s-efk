@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: i-logstash
+  namespace: kube-system
+  labels:
+    component: i-logstash
+spec:
+  selector:
+    component: i-logstash
+  ports:
+  - name: i-logstash
+    port: 5043
+    protocol: TCP
+

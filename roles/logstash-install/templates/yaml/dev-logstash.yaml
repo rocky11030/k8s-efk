@@ -1,0 +1,33 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: dev-logstash
+  namespace: kube-system
+  labels:
+    component: dev-logstash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     component: dev-logstash
+  template:
+    metadata:
+      labels:
+        component: dev-logstash
+    spec:
+      containers:
+      - name: dev-logstash
+        image: logstash
+        imagePullPolicy: IfNotPresent
+        command: ["logstash", "-f", "/logstash/config/logstash.conf"]
+        ports:
+        - containerPort: 5043
+          name: logstash
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /logstash/config
+          name: conf
+      volumes:
+      - hostPath:
+          path: "/logstash/dev"
+        name: conf

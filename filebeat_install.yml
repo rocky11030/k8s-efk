@@ -1,0 +1,5 @@
+---
+- hosts: filebeat
+  user: root
+  roles:
+    - filebeat-install

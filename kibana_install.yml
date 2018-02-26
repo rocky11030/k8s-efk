@@ -1,0 +1,5 @@
+---
+- hosts: kibana
+  user: root
+  roles:
+    - kibana-install

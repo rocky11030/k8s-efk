@@ -1,0 +1,33 @@
+---
+- name: create kibana images directory
+  file: path=/tmp/images state=directory
+
+- name: copy kibana images
+  copy: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - {src: 'kibana.tar', dest: '/tmp/images/kibana.tar'  }
+
+- name: docker import kinana images
+  shell: docker load -i {{ item }}
+  with_items:
+    - /tmp/images/kinana.tar
+
+- name: create kibana conf directory
+  file: path=/tmp/kibana state=directory
+
+- name: copy kibana conf
+  template: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - {src: 'kibana.yaml', dest: '/tmp/kibana/kibana.yaml'}
+    - {src: 'kibana-svc.yaml', dest: '/tmp/kibana/kibana-svc.yaml'}
+
+- name: create kibana pod
+  shell: kubectl create -f /tmp/kibana.yaml
+  
+- name: sleep 5s
+  shell: seep 5
+
+- name: create kibana service
+  shell: kubectl create -f /tmp/kibana-svc.yaml
+
+ 
