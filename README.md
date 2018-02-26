@@ -9,7 +9,7 @@
 - 三、部署elasticsearch集群，3个节点部署
 - 四、部署kibana单点
 - 五、logstash、es和kibana的镜像太大，放到网盘
-PS: 一定要先部署k8s环境
+- PS: 一定要先部署k8s环境
 
 第三步: 安装es集群
 --------------
