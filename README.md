@@ -11,12 +11,6 @@
 - 五、logstash、es和kibana的镜像太大，放到网盘
 - PS: 一定要先部署k8s环境
 
-第三步: 安装es集群
---------------
-* 修改hosts的主机变量和groups_vars/all里面的变量
-* 执行脚本:ansible-playbook -i hosts es_install.yml
-
-
 第一步: 安装filebeat
 --------------
 * 修改hosts的主机变量和groups_vars/all里面的变量

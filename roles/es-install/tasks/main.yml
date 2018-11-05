@@ -18,16 +18,12 @@
 - name: copy kibana conf
   template: src={{ item.src }} dest={{ item.dest }}
   with_items:
-    - {src: 'es-master.yaml', dest: '/tmp/es/es-master.yaml'}
-    - {src: 'es-master-pdb.yaml', dest: '/tmp/es/es-master-pdb.yaml'}
-    - {src: 'es-data.yaml', dest: '/tmp/es/es-data.yaml'}
-    - {src: 'es-data-pdb.yaml', dest: '/tmp/es/es-data-pdb.yaml'}
-    - {src: 'es-svc.yaml', dest: '/tmp/es/es-svc.yaml'}
-    - {src: 'es-client.yaml', dest: '/tmp/es/es-client.yaml'}
-    - {src: 'es-discovery-svc.yaml', dest: '/tmp/es/es-discovery-svc.yaml'}
+    - {src: 'es-master-svc.yml', dest: '/tmp/es/es-master-svc.yaml'}
+    - {src: 'es-data-pdb.yml', dest: '/tmp/es/es-data-pdb.yml'}
+    - {src: 'es-client-svc.yml', dest: '/tmp/es/es-client-svc.yml'}
 
 - name: create elasticsearch pod and svc
   shell: kubectl create -f /tmp/es
   
-
- 
+- name: delete /tmp/es
+  shell: rm -rf /tmp/es 

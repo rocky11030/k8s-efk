@@ -2,10 +2,10 @@
 
 
 [logstash]
-10.2.76.2 ansible_ssh_user=root ansible_ssh_pass=Neunn2016
+10.2.76.2 ansible_ssh_user=root ansible_ssh_pass=***
 
 [es]
-10.2.76.2 ansible_ssh_user=root ansible_ssh_pass=Neunn2016
+10.2.76.2 ansible_ssh_user=root ansible_ssh_pass=***
 
 [kibana]
-10.2.76.2 ansible_ssh_user=root ansible_ssh_pass=Neunn2016
+10.2.76.2 ansible_ssh_user=root ansible_ssh_pass=***

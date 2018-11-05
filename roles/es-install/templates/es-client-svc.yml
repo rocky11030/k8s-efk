@@ -1,18 +1,18 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: es-master
+  name: es-client
   namespace: kube-system
   labels:
     component: elasticsearch
-    role: master
+    role: client
 spec:
   replicas: 3
   template:
     metadata:
       labels:
         component: elasticsearch
-        role: master
+        role: client
     spec:
       initContainers:
       - name: init-sysctl
@@ -22,7 +22,7 @@ spec:
         securityContext:
           privileged: true
       containers:
-      - name: es-master
+      - name: es-client
         securityContext:
           privileged: false
           capabilities:
@@ -42,29 +42,34 @@ spec:
               fieldPath: metadata.name
         - name: "CLUSTER_NAME"
           value: "myesdb"
-        - name: "NUMBER_OF_MASTERS"
-          value: "2"
         - name: NODE_MASTER
-          value: "true"
-        - name: NODE_INGEST
           value: "false"
         - name: NODE_DATA
           value: "false"
         - name: HTTP_ENABLE
-          value: "false"
+          value: "true"
         - name: MEMORY_LOCK
           value: "true"
         - name: "MAX_LOCAL_STORAGE_NODES"
           value: "5"
         - name: "ES_JAVA_OPTS"
-          value: "-Xms20g -Xmx20g"
+          value: "-Xms5g -Xmx5g"
         ports:
+        - containerPort: 9200
+          name: http
+          protocol: TCP
         - containerPort: 9300
           name: transport
           protocol: TCP
         livenessProbe:
           tcpSocket:
             port: 9300
+        readinessProbe:
+          httpGet:
+            path: /_cluster/health
+            port: 9200
+          initialDelaySeconds: 20
+          timeoutSeconds: 5
         volumeMounts:
         - name: data
           mountPath: /data
@@ -77,3 +82,23 @@ spec:
           - name: time
             hostPath:
                 path: /etc/localtime
+#es-client-svc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch
+  namespace: kube-system
+  labels:
+    component: elasticsearch
+    role: client
+spec:
+  type: NodePort
+  selector:
+    component: elasticsearch
+    role: client
+  ports:
+  - name: http
+    nodePort: 30000
+    port: 9200
+    protocol: TCP

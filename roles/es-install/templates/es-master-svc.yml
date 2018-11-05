@@ -1,18 +1,18 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: es-data
+  name: es-master
   namespace: kube-system
   labels:
     component: elasticsearch
-    role: data
+    role: master
 spec:
-  replicas: 2
+  replicas: 3
   template:
     metadata:
       labels:
         component: elasticsearch
-        role: data
+        role: master
     spec:
       initContainers:
       - name: init-sysctl
@@ -22,7 +22,7 @@ spec:
         securityContext:
           privileged: true
       containers:
-      - name: es-data
+      - name: es-master
         securityContext:
           privileged: false
           capabilities:
@@ -42,9 +42,13 @@ spec:
               fieldPath: metadata.name
         - name: "CLUSTER_NAME"
           value: "myesdb"
+        - name: "NUMBER_OF_MASTERS"
+          value: "2"
         - name: NODE_MASTER
-          value: "false"
+          value: "true"
         - name: NODE_INGEST
+          value: "false"
+        - name: NODE_DATA
           value: "false"
         - name: HTTP_ENABLE
           value: "false"
@@ -61,8 +65,6 @@ spec:
         livenessProbe:
           tcpSocket:
             port: 9300
-          initialDelaySeconds: 20
-          periodSeconds: 10
         volumeMounts:
         - name: data
           mountPath: /data
@@ -75,3 +77,34 @@ spec:
           - name: time
             hostPath:
                 path: /etc/localtime
+#es-master-discovery
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-discovery
+  namespace: kube-system
+  labels:
+    component: elasticsearch
+    role: master
+spec:
+  selector:
+    component: elasticsearch
+    role: master
+  ports:
+  - name: transport
+    port: 9300
+    protocol: TCP
+#es-master-pdb
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: elasticsearch-master
+  namespace: kube-system
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      component: elasticsearch
+      role: master

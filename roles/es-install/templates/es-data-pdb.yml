@@ -1,18 +1,18 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: es-client
+  name: es-data
   namespace: kube-system
   labels:
     component: elasticsearch
-    role: client
+    role: data
 spec:
-  replicas: 2
+  replicas: 3
   template:
     metadata:
       labels:
         component: elasticsearch
-        role: client
+        role: data
     spec:
       initContainers:
       - name: init-sysctl
@@ -22,7 +22,7 @@ spec:
         securityContext:
           privileged: true
       containers:
-      - name: es-client
+      - name: es-data
         securityContext:
           privileged: false
           capabilities:
@@ -44,32 +44,25 @@ spec:
           value: "myesdb"
         - name: NODE_MASTER
           value: "false"
-        - name: NODE_DATA
+        - name: NODE_INGEST
           value: "false"
         - name: HTTP_ENABLE
-          value: "true"
+          value: "false"
         - name: MEMORY_LOCK
           value: "true"
         - name: "MAX_LOCAL_STORAGE_NODES"
           value: "5"
         - name: "ES_JAVA_OPTS"
-          value: "-Xms5g -Xmx5g"
+          value: "-Xms20g -Xmx20g"
         ports:
-        - containerPort: 9200
-          name: http
-          protocol: TCP
         - containerPort: 9300
           name: transport
           protocol: TCP
         livenessProbe:
           tcpSocket:
             port: 9300
-        readinessProbe:
-          httpGet:
-            path: /_cluster/health
-            port: 9200
           initialDelaySeconds: 20
-          timeoutSeconds: 5
+          periodSeconds: 10
         volumeMounts:
         - name: data
           mountPath: /data
@@ -81,4 +74,18 @@ spec:
                 path: /data
           - name: time
             hostPath:
-                path: /etc/localtime
+               path: /etc/localtime
+
+#es-data-pdb
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: elasticsearch-data
+  namespace: kube-system
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      component: elasticsearch
+      role: data
